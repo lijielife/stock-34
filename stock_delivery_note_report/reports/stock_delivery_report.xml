@@ -168,7 +168,7 @@
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                <tr t-foreach="picking['move_lines']" t-as="move">
+                                                <tr t-foreach="picking['moves']" t-as="move">
                                                     <td><t t-if="move['brand']"><span t-esc="move['brand']"/> - </t><span t-esc="move['name']"/><br/>
                                                         <span t-esc="move['ref']"/>
                                                     </td>
