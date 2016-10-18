@@ -132,6 +132,17 @@
                                     </tbody>
                                 </table>
 
+				<br/>
+                                <strong>Acknowledgment:</strong>
+                                <table width="50%" height="70px">
+                                    <tr>
+                                        <td style="border: 1px black solid;">
+                                        </td>
+                                    </tr>
+                                </table>
+
+				<p style="page-break-after:always"></p>
+
                                 <!-- Rest of the waiting moves for the customer -->
                                 <t t-if="len(o.get_report_data_picking_lists_out_from_partner(o.id, o.sale_id.partner_invoice_id)) > 0">
                                     <h3>Other open orders</h3>
@@ -168,7 +179,7 @@
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                <tr t-foreach="picking['move_lines']" t-as="move">
+                                                <tr t-foreach="picking['moves']" t-as="move">
                                                     <td><t t-if="move['brand']"><span t-esc="move['brand']"/> - </t><span t-esc="move['name']"/><br/>
                                                         <span t-esc="move['ref']"/>
                                                     </td>
@@ -232,14 +243,6 @@
                                   </tbody>
                                 </table>
                                 -->
-                                <br/>
-                                <strong>Acknowledgment:</strong>
-                                <table width="50%" height="70px">
-                                    <tr>
-                                        <td style="border: 1px black solid;">
-                                        </td>
-                                    </tr>
-                                </table>
                             </div>
                         </t>
                     </t>
