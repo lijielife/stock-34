@@ -10,18 +10,24 @@ _logger = logging.getLogger(__name__)
  
 class stock_delivery_labels(models.Model):
     _inherit = ['stock.picking']
-  
-    def get_report_data_picking_lists_out_from_partner(self, delivery_id, partner):
 
-        picking_types = self.env['stoock.picking.type'].search([['code', '=', 'outgoing']])
-        if len(picking_types) > 0:
-            _logger.debug("%s", picking_types)
-            _logger.debug("%s", picking_types[0])
+    @api.model
+    def get_available_picking_lists_out_for_partner(self):
+        picking_types = self.env['stock.picking.type'].search([['code', '=', 'outgoing']])
+        types = []
+        for pt in picking_types:
+            types.append(pt.id)
+        pickings = self.env['stock.picking'].search([['partner_id', '=', self.partner_id.id], ['picking_type_id', 'in', types], ['state','in',['waiting', 'confirmed','partially_available', 'assigned']], ['id', '!=', self.id]])
+        return pickings
 
-        pickings = self.env['stock.picking'].search([['partner_id', '=', partner.id], ['picking_type_id', 'in', picking_types], ['state','in',['confirmed','partially_available']], ['id', '!=', delivery_id]])
-        _logger.debug("Pickings %s", pickings)
+    @api.model
+    def get_available_picking_lists_data_out_for_partner(self):
+
+        pickings = self.get_available_picking_lists_out_for_partner()
 
         if len(pickings) > 0:
+            result = []
+
             move_state_dict = {
                 'waiting':'Waiting Another Move',
                 'confirmed':'Waiting Avaibility',
@@ -31,12 +37,13 @@ class stock_delivery_labels(models.Model):
             picking_state_dict = {
                 'waiting':'Waiting Another Operation',
                 'confirmed':'Waiting Avaibility',
-                'assigned':'Ready to transfer',
                 'partially_available':'Partially Available',
-                'done':'Transferred',
+                'assigned':'Ready to transfer',
             }
 
             for picking in pickings:
+                if picking.id == self.id:
+                    continue
                 picking_dict = {}
                 picking_dict['name'] = picking.name
                 picking_dict['origin'] = picking.origin
@@ -53,15 +60,16 @@ class stock_delivery_labels(models.Model):
                  
                 picking_dict['moves'] = []
                 for move in picking.move_lines_related:
+                    _logger.debug("\n\nMOVE : %s", move)
                     move_dict = {
-                        'name':move.product_id.name,
-                        'brand':move.product_id.product_brand_id.name,
-                        'full_name':str(move.product_id.product_brand_id.name) + " - " + move.product_id.name,
-                        'ean13':move.product_id.ean13,
-                        'ref':move.product_id.default_code,
+                        'name': move.product_id.name,
+                        'brand': move.product_id.product_brand_id.name,
+                        'full_name': str(move.product_id.product_brand_id.name) + " - " + move.product_id.name,
+                        'ean13': move.product_id.barcode,
+                        'ref': move.product_id.default_code,
                         'qty': move.product_uom_qty,
-                        'uom':move.product_uom.name,
-                        'date':move.date,
+                        'uom': move.product_uom.name,
+                        'date': move.date,
                     }
                     
                     if move.state in move_state_dict:
@@ -73,5 +81,6 @@ class stock_delivery_labels(models.Model):
 
                 picking_dict['moves'] = sorted(picking_dict['moves'], key=lambda k: k['full_name']) 
                 result.append(picking_dict)
+            _logger.debug("\n\nRESULTS : %s", result)
 
             return result
