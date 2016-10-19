@@ -15,4 +15,6 @@ class stock_picking_with_customer_so_reference(models.Model):
     def _compute_customer_reference(self):
         for l in self:
             order = self.env['sale.order'].search([('partner_id', '=', l.partner_id.id), ('name', '=', l.group_id.name)])
+            if len(order) > 0:
+                order = order[0]
             l.customer_reference = order.client_order_ref
