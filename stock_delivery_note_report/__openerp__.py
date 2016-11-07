@@ -1,6 +1,6 @@
 {
     'name': "Stock Delivery Note",
-    'version': '9.0.1.0.0',
+    'version': '9.0.1.0.1',
     'depends': ['stock',],
     'author': "Valentin THIRION, AbAKUS it-solutions SARL",
     'website': "http://www.abakusitsolutions.eu",
@@ -14,6 +14,7 @@ It shows the current delivery, the waiting lines for the delivery and all the ot
 This module has been developed by Valentin THIRION @ AbAKUS it-solutions.
 """,
     'data': [
-            'reports/stock_delivery_report.xml',
+        'reports/stock_delivery_report.xml',
+        'views/delivery_note.xml',
              ],
 }

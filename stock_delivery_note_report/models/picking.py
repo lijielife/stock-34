@@ -11,6 +11,10 @@ _logger = logging.getLogger(__name__)
 class stock_delivery_labels(models.Model):
     _inherit = ['stock.picking']
 
+    def print_delivery_note(self, cr, uid, ids, context=None):
+        #report name: stock.report_deliverieslabels
+        return self.pool['report'].get_action(cr, uid, ids, 'stock_delivery_note_report.report_delivery_order', context=context)
+
     @api.model
     def get_available_picking_lists_out_for_partner(self):
         picking_types = self.env['stock.picking.type'].search([['code', '=', 'outgoing']])
