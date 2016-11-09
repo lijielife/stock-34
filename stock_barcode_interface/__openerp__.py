@@ -1,6 +1,6 @@
 {
    'name': "Stock barcode interface",
-    'version': '9.0.1.0.2',
+    'version': '9.0.1.0.3',
     'depends': ['stock', 'stock_delivery_note_report', 'product_brand', 'deliveries_labels'],
     'author': "AbAKUS it-solutions SARL",
     'website': "http://www.abakusitsolutions.eu",
