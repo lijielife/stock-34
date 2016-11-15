@@ -73,7 +73,6 @@
                                 </table>
 
                                 <!-- Operations -->
-                                <h3>Ready/Done Operations</h3>
                                 <table class="table table-condensed table-striped">
                                     <thead>
                                         <tr>
@@ -102,32 +101,6 @@
                                             <td>
                                                 <span t-esc="operation.qty_done"/> / <span t-esc="operation.product_qty"/> <span t-esc="operation.product_uom_id.name"/>
                                             </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-
-                                <!-- Initial Demand -->
-                                <h3>Initial Demand</h3>
-                                <table class="table table-condensed table-striped">
-                                    <thead>
-                                        <tr>
-                                            <th width="60%">Product</th>
-                                            <th width="15%">Quantity</th>
-                                            <th width="25%">State</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr t-foreach="o.move_lines_related" t-as="line">
-                                            <td>
-                                                <t t-if="line.product_id.product_brand_id.name">
-                                                    <span t-esc="line.product_id.product_brand_id.name"/> -
-                                                </t>
-                                                <span t-esc="line.product_id.name"/>
-                                                <br/>
-                                                <span t-esc="line.product_id.default_code"/>
-                                            </td>
-                                            <td><span t-esc="line.product_uom_qty" /><span t-field="line.product_uom" /></td>
-                                            <td><span t-field="line.state" /></td>
                                         </tr>
                                     </tbody>
                                 </table>
