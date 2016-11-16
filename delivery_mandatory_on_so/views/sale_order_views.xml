@@ -8,7 +8,7 @@
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='carrier_id']" position="replace">
                     <!-- Set field mandatory when date is set, date is always set so always mandatory -->
-                    <field name="carrier_id" context="{'order_id': id}" class="oe_inline" options="{'no_create': True, 'no_open': True}" attrs="{'required': [('date', '!=', False)], 'readonly':[('state','not in',('draft','sent'))]}"/>
+                    <field name="carrier_id" context="{'order_id': id}" class="oe_inline" options="{'no_create': True, 'no_open': True}" attrs="{'required': [('date_order', '!=', False)], 'readonly':[('state','not in',('draft','sent'))]}"/>
                 </xpath>
             </field>
         </record>
