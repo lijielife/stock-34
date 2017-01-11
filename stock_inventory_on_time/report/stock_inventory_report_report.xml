@@ -1,0 +1,66 @@
+<?xml version="1.0"?>
+<openerp>
+    <data>
+        <report 
+            string="InventoryReportOnDate"
+            id="action_stock_inventory_on_time" 
+            model="stock.inventory.report" 
+            report_type="qweb-pdf"
+            name="stock_inventory_on_time.stock_inventory_on_time_document" 
+            file="stock_inventory_on_time" 
+        />
+
+        <template id="stock_inventory_on_time_document">
+            <t t-name="stock_inventory_on_time.stock_inventory_on_time_document">
+                <t t-call="report.html_container">
+                    <t t-foreach="docs" t-as="doc">
+                        <t t-call="report.external_layout">
+                            <div class="page">
+                                <t t-set="products" t-value="doc.get_report_data()"/>
+
+                                <div class="oe_structure"/>
+
+                                <h1>Inventory Report</h1>
+                                <h2>Info:</h2>
+                                <table class="table">
+                                    <tr>
+                                        <th>Period start</th>
+                                        <th>Period end</th>
+                                        <th>Stock location</th>
+                                    </tr>
+                                    <tr>
+                                        <td><span t-esc="doc.date_from"/></td>
+                                        <td><span t-esc="doc.date_from"/></td>
+                                        <td><span t-esc="doc.location_id.name"/></td>
+                                    </tr>
+                                </table>
+                                <table class="table table-condensed table-striped">
+                                    <tr>
+                                        <th>No</th>
+                                        <th>Code</th>
+                                        <th>Product name</th>
+                                        <th>Op. Qty.</th>
+                                        <th>IN</th>
+                                        <th>OUT</th>
+                                        <th>En. Qty</th>
+                                    </tr>
+                                    <t t-foreach="products" t-as="p">
+                                        <tr>
+                                            <td><span t-esc="p['num']" /></td>
+                                            <td><span t-esc="p['code']" /></td>
+                                            <td><span t-esc="p['name']" /></td>
+                                            <td><span t-esc="p['qty_dk']" /></td>
+                                            <td><span t-esc="p['qty_in_tk']" /></td>
+                                            <td><span t-esc="p['qty_out_tk']" /></td>
+                                            <td><span t-esc="p['qty_ck']" /></td>
+                                        </tr>
+                                    </t>
+                                </table>
+                            </div>
+                        </t>
+                    </t>
+                </t>
+            </t>
+        </template>
+    </data>
+</openerp>

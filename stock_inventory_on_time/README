@@ -1,0 +1,10 @@
+Stock Inventory on Time
+
+This modules creates a new PDF report for Inventory selected for a certain time period.
+
+A new menuitem appears in the warehouse menu that allows to select a peride (between 2 dates) and a stock location.
+The system will put in the file all the products that stocked during this period.
+
+This model has been developped by Valentin THIRION @ AbAKUS it-solutions
+
+SQL credit: https://github.com/quanvm00/Inventory-Report
