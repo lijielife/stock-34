@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+        <record forcecreate="True" id="ir_cron_delivery_order_auto" model="ir.cron">
+            <field name="name">Delivery Orders Auto action cron</field>
+            <field name="active" eval="True"/>
+            <field name="interval_number">30</field>
+            <field name="interval_type">minutes</field>
+            <field name="numbercall">-1</field>
+            <field name="doall" eval="False"/>
+            <field name="model" eval="'stock.picking'"/>
+            <field name="function" eval="'cron_action'"/>
+            <field name="args" eval="'()'"/>
+            <field name="nextcall" eval="(DateTime.now() + timedelta(days=1)).strftime('%Y-%m-%d 06:00:00')" />
+        </record>
+    </data>
+</openerp>
