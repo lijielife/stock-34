@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openerp>
+    <data>
+        <record model="ir.ui.view" id="product_with_stock_label_button">
+            <field name="name">product.product.with.stock.label.button</field>
+            <field name="model">product.template</field>
+            <field name="inherit_id" ref="product.product_template_only_form_view"/>
+            <field name="arch" type="xml">
+                <field name="sale_ok" position="before">
+                    <group>
+                        <button class="oe_highlight" type="object" string="Print Label" name="print_labels"/>
+                        <button class="oe_highlight" type="object" string="Print Label + Stock" name="print_labels_with_stock_location"/>
+                    </group>
+                </field>
+            </field>
+        </record>
+    </data>
+</openerp>
