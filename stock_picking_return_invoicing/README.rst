@@ -53,24 +53,12 @@ after you created an invoice, you need to:
 
 #. The behaviour is exactly the same for Purchase Orders
 
-.. image:: https://odoo-community.org/website/image/ir.attachment/5784_f2813bd/datas
-   :alt: Try me on Runbot
-   :target: https://runbot.odoo-community.org/runbot/95/9.0
-
 Known issues / Roadmap
 ======================
 
 * This addon is a pseudobackport of a functionality that exists natively in
   v10, plus a fix for https://github.com/odoo/odoo/issues/13974, so this addon
   will never have to be migrated to v10.
-
-Bug Tracker
-===========
-
-Bugs are tracked on `GitHub Issues
-<https://github.com/OCA/account-invoicing/issues>`_. In case of trouble, please
-check there if your issue has already been reported. If you spotted it first,
-help us smashing it by providing a detailed and welcomed feedback.
 
 Credits
 =======
