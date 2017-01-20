@@ -58,3 +58,21 @@ class stock_pack_operation_stock_barcode_interface(models.Model):
                 values.update(update_dict)
             operation_id = self.create(cr, uid, values, context=context)
         return operation_id
+
+    def action_drop_down(self, cr, uid, ids, context=None):
+        ''' Used by barcode interface to say that pack_operation has been moved from src location 
+            to destination location, if qty_done is less than product_qty than we have to split the
+            operation in two to process the one with the qty moved
+        '''
+        processed_ids = []
+        move_obj = self.pool.get("stock.move")
+        for pack_op in self.browse(cr, uid, ids, context=None):
+            if pack_op.product_id and pack_op.location_id and pack_op.location_dest_id:
+                move_obj.check_tracking_product(cr, uid, pack_op.product_id, pack_op.lot_id.id, pack_op.location_id, pack_op.location_dest_id, context=context)
+            op = pack_op.id
+            if pack_op.qty_done < pack_op.product_qty:
+                # we split the operation in two
+                op = self.copy(cr, uid, pack_op.id, {'product_qty': pack_op.qty_done, 'qty_done': pack_op.qty_done}, context=context)
+                self.write(cr, uid, [pack_op.id], {'product_qty': pack_op.product_qty - pack_op.qty_done, 'qty_done': 0}, context=context)
+            processed_ids.append(op)
+        self.write(cr, uid, processed_ids, {'processed': 'true'}, context=context)

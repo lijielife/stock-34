@@ -228,7 +228,7 @@
                     <button type="button" class="btn btn-primary navbar-btn js_pick_collect_and_go">CollectAndGo</button>
                     <!-- <button type="button" class="btn btn-primary navbar-btn js_pick_menu">Menu</button> -->
                     <button type="button" class="btn btn-primary navbar-btn js_pick_incomings">Incomings</button>
-                    <button type="button" class="btn btn-primary navbar-btn js_pick_outgoings">Outgoings</button>
+                    <!--<button type="button" class="btn btn-primary navbar-btn js_pick_outgoings">Outgoings</button>-->
                     <button type="button" class="btn btn-primary navbar-btn js_pick_products">All Products</button>
                     <button type="button" class="btn btn-primary navbar-btn js_pick_moves_products">Moves Products</button>
                     <button type="button" class="btn btn-primary navbar-btn js_pick_customers">Customers</button>
