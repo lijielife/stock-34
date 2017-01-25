@@ -4,24 +4,13 @@
 
 from openerp import api, models, fields, _
 from openerp.exceptions import UserError
+from openerp.tools import float_is_zero, float_compare, DEFAULT_SERVER_DATETIME_FORMAT
 
 import logging
 _logger = logging.getLogger(__name__)
 
 class PurchaseOrder(models.Model):
     _inherit = "purchase.order"
-
-    should_be_invoiced = fields.Boolean(string="Should be Invoiced", compute="_compute_should_be_invoiced", store=True, default=False)
-
-    @api.multi
-    @api.depends('order_line', 'order_line.qty_to_invoice')
-    def _compute_should_be_invoiced(self):
-        for order in self:
-            order.should_be_refunded = False
-            for line in order.order_line:
-                if line.qty_to_invoice > 0:
-                    order.should_be_refunded = True
-                    break
     
     @api.multi
     def _prepare_invoice(self):
@@ -35,18 +24,18 @@ class PurchaseOrder(models.Model):
         if not journal_id:
             raise UserError(_('Please define an accounting sale journal for this company.'))
         invoice_vals = {
-            'name': self.client_order_ref or '',
+            'name': self.partner_ref or '',
             'origin': self.name,
             'type': 'in_invoice',
-            'account_id': self.partner_id.property_account_expense_id.id,
+            'account_id': self.partner_id.property_account_payable_id.id,
             'partner_id': self.partner_id.id,
             'journal_id': journal_id,
             'currency_id': self.currency_id.id,
-            'comment': self.note,
+            'comment': self.notes,
             'payment_term_id': self.payment_term_id.id,
             'fiscal_position_id': self.fiscal_position_id.id or self.partner_id.property_account_position_id.id,
             'company_id': self.company_id.id,
-            'user_id': self.user_id and self.user_id.id,
+            'user_id': self.env.user.id and self.env.user.id,
         }
         return invoice_vals
     
@@ -54,16 +43,18 @@ class PurchaseOrder(models.Model):
     def action_invoice_create(self):
         _logger.debug("Create Invoice")
         for order in self:
-            # Should not be invoiced
-            if not order.should_be_invoiced:
+            # Test if should not be invoiced
+            sbi = False
+            for line in order.order_line:
+                if line.qty_to_invoice != 0:
+                    sbi = True
+            if not sbi:
                 raise UserError(_('There is no invoicable line.'))
+                
 
             # Should be invoiced
             """
             Create the invoice associated to the PO.
-            :param grouped: if True, invoices are grouped by SO id. If False, invoices are grouped by
-                            (partner_invoice_id, currency)
-            :param final: if True, refunds will be generated if necessary
             :returns: list of created invoices
             """
             inv_obj = self.env['account.invoice']
@@ -71,32 +62,34 @@ class PurchaseOrder(models.Model):
             invoices = {}
 
             for order in self:
-                group_key = order.id if grouped else (order.partner_id.id, order.currency_id.id)
+                group_key = order.id
                 for line in order.order_line.sorted(key=lambda l: l.qty_to_invoice < 0):
                     if float_is_zero(line.qty_to_invoice, precision_digits=precision):
                         continue
                     if group_key not in invoices:
+                        _logger.debug("TEST TEST TEST")
                         inv_data = order._prepare_invoice()
                         invoice = inv_obj.create(inv_data)
                         invoices[group_key] = invoice
+                        _logger.debug("Invoices %s", invoices)
                     elif group_key in invoices:
                         vals = {}
                         if order.name not in invoices[group_key].origin.split(', '):
                             vals['origin'] = invoices[group_key].origin + ', ' + order.name
-                        if order.client_order_ref and order.client_order_ref not in invoices[group_key].name.split(', '):
-                            vals['name'] = invoices[group_key].name + ', ' + order.client_order_ref
+                        if order.partner_ref and order.partner_ref not in invoices[group_key].name.split(', '):
+                            vals['name'] = invoices[group_key].name + ', ' + order.partner_ref
                         invoices[group_key].write(vals)
                     if line.qty_to_invoice > 0:
                         line.invoice_line_create(invoices[group_key].id, line.qty_to_invoice)
-                    elif line.qty_to_invoice < 0 and final:
+                    elif line.qty_to_invoice < 0:
                         line.invoice_line_create(invoices[group_key].id, line.qty_to_invoice)
 
             if not invoices:
-                raise UserError(_('There is no invoicable line.'))
+                raise UserError(_('There is no invoicable line. NOT FOUND'))
 
             for invoice in invoices.values():
                 if not invoice.invoice_line_ids:
-                    raise UserError(_('There is no invoicable line.'))
+                    raise UserError(_('There is no invoicable line. NO VALUE'))
                 # If invoice is negative, do a refund invoice instead
                 if invoice.amount_untaxed < 0:
                     invoice.type = 'in_refund'
@@ -109,4 +102,12 @@ class PurchaseOrder(models.Model):
                 # by onchanges, which are not triggered when doing a create.
                 invoice.compute_taxes()
 
+            return {
+                'view_type': 'form',
+                'view_mode': 'form',
+                'res_model': 'account.invoice',
+                'target': 'current',
+                'res_id': [inv.id for inv in invoices.values()][0],
+                'type': 'ir.actions.act_window'
+            }
             return [inv.id for inv in invoices.values()]

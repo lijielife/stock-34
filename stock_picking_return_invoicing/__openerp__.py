@@ -14,10 +14,10 @@
     "depends": [
         "sale_stock",
         "purchase",
+        "account_accountant",
     ],
     "data": [
         "wizards/stock_return_picking_view.xml",
         "views/purchase_order_view.xml",
-        "views/purchase_order_line_view.xml",
     ],
 }

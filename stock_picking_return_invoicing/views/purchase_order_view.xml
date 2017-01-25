@@ -9,6 +9,9 @@
                 <xpath expr="(//button[@name='print_quotation'])" position="after">
                     <button name="action_invoice_create" string="Create Invoice / Refund" type="object" class="oe_highlight" attrs="{'invisible': [('state','not in', ('purchase','done'))]}"/>
                 </xpath>
+                <xpath expr="(//field[@name='order_line']//field[@name='qty_invoiced'])" position="after">
+                    <field name="qty_to_invoice" />
+                </xpath>
             </field>
         </record>
     </data>

@@ -4,6 +4,8 @@
 
 from openerp import api, models, fields
 import openerp.addons.decimal_precision as dp
+from openerp.tools import float_is_zero, float_compare, DEFAULT_SERVER_DATETIME_FORMAT
+
 
 import logging
 _logger = logging.getLogger(__name__)
@@ -26,6 +28,18 @@ class PurchaseOrderLine(models.Model):
                 line.qty_to_invoice = line.qty_received - line.qty_invoiced
             else:
                 line.qty_to_invoice = 0
+
+    @api.depends('invoice_lines.invoice_id.state')
+    def _compute_qty_invoiced(self):
+        for line in self:
+            qty = 0.0
+            for inv_line in line.invoice_lines:
+                if inv_line.invoice_id.state not in ['cancel']:
+                    if inv_line.invoice_id.type == 'in_invoice':
+                        qty += inv_line.uom_id._compute_qty_obj(inv_line.uom_id, inv_line.quantity, line.product_uom)
+                    elif inv_line.invoice_id.type == 'in_refund':
+                        qty -= inv_line.uom_id._compute_qty_obj(inv_line.uom_id, inv_line.quantity, line.product_uom)
+            line.qty_invoiced = qty
 
     @api.depends('order_id.state', 'move_ids.state')
     def _compute_qty_received(self):
@@ -78,10 +92,9 @@ class PurchaseOrderLine(models.Model):
             'account_id': account.id,
             'price_unit': self.price_unit,
             'quantity': qty,
-            'discount': self.discount,
             'uom_id': self.product_uom.id,
             'product_id': self.product_id.id or False,
-            'invoice_line_tax_ids': [(6, 0, self.tax_id.ids)],
+            'invoice_line_tax_ids': [(6, 0, self.taxes_id.ids)],
         }
         return res
 
@@ -98,4 +111,6 @@ class PurchaseOrderLine(models.Model):
             if not float_is_zero(qty, precision_digits=precision):
                 vals = line._prepare_invoice_line(qty=qty)
                 vals.update({'invoice_id': invoice_id, 'order_line': [(6, 0, [line.id])]})
-                self.env['account.invoice.line'].create(vals)
+                invoice_line = self.env['account.invoice.line'].create(vals)
+                _logger.debug("Invoice line id: %s", id)
+                line.write({'invoice_lines': [(4, invoice_line.id)]})
