@@ -10,12 +10,18 @@ class delivery_order(models.Model):
 
     def cron_action(self, cr, uid, ids=None, context=None):
         picking_obj = self.pool.get('stock.picking')
-        waiting_pickings_id = picking_obj.search(cr, uid, [('picking_type_id', '=', 6), ('state','=','confirmed')])
-        ready_pickings_id = picking_obj.search(cr, uid, [('picking_type_id', '=', 6), ('state','=','assigned')])
+        waiting_pickings_id = picking_obj.search(cr, uid, [('picking_type_id.code', '=', 'outgoing'), ('state','=','confirmed')])
+        partially_available_pickings_id = picking_obj.search(cr, uid, [('picking_type_id.code', '=', 'outgoing'), ('state','=','partially_available')])
+        ready_pickings_id = picking_obj.search(cr, uid, [('picking_type_id.code', '=', 'outgoing'), ('state','=','assigned')])
 
         # Check availability for waiting pickings
         if waiting_pickings_id:
             for pick in picking_obj.browse(cr, uid, waiting_pickings_id):
+                picking_obj.action_assign(cr, uid, pick.id, context=context)
+
+        # Check availability for partially_available pickings
+        if partially_available_pickings_id:
+            for pick in picking_obj.browse(cr, uid, partially_available_pickings_id):
                 picking_obj.action_assign(cr, uid, pick.id, context=context)
 
         # Check if printed, if not print and set as it
